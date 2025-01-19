@@ -5,15 +5,39 @@ import { IMAGE_VARIANTS, ImageVariant, ImageVariantType, IProduct } from '@/mode
 import { IKImage } from 'imagekitio-next';
 import { AlertCircle, Check, ImageIcon, Loader2 } from 'lucide-react';
 import { useSession } from 'next-auth/react';
-import {  useRouter } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react'
+
+// Define Razorpay types
+interface RazorpayOptions {
+  key: string;
+  amount: number;
+  currency: string;
+  name: string;
+  description: string;
+  order_id: string;
+  handler: () => void;
+  prefill: {
+    email: string;
+  };
+}
+
+interface RazorpayInstance {
+  open: () => void;
+}
+
+// Extend Window interface to include Razorpay
+declare global {
+  interface Window {
+    Razorpay: new (options: RazorpayOptions) => RazorpayInstance;
+  }
+}
 
 export default function Product({
   params
 }: {
   params: Promise<{ id: string }>
 }) {
-
   const router = useRouter();
   const [product, setProduct] = useState<IProduct | null>(null);
   const [loading, setLoading] = useState(false);
@@ -35,7 +59,6 @@ export default function Product({
       try {
         const data = await apiClient.getProduct(id.toString())
         setProduct(data);
-
       } catch (err) {
         console.error("Error fetching product:", err);
         setError(err instanceof Error ? err.message : "Failed to load product");
@@ -44,12 +67,10 @@ export default function Product({
       }
     }
     fetchProduct();
-  }, [params])
+  }, [params, showNotification])
 
-  //handlepurchse based on the variant
   const handlePurchase = async (variant: ImageVariant) => {
-
-    if (!session) {
+    if (!session?.user?.email) {
       showNotification('Please login to purchase', 'error');
       router.push("/login")
       return;
@@ -63,14 +84,16 @@ export default function Product({
       const { orderId, amount } = await apiClient.createOrder({
         productId: product._id,
         variant
-      })
-      if (!process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID) {
+      });
+
+      const razorpayKeyId = process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID;
+      if (!razorpayKeyId) {
         showNotification("Razorpay key is missing", "error");
         return;
       }
 
-      const options = {
-        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+      const options: RazorpayOptions = {
+        key: razorpayKeyId,
         amount,
         currency: "USD",
         name: "ImageKit Shop",
@@ -85,7 +108,7 @@ export default function Product({
         },
       };
 
-      const rzp = new (window as any).Razorpay(options);
+      const rzp = new window.Razorpay(options);
       rzp.open();
 
     } catch (error) {
@@ -94,7 +117,6 @@ export default function Product({
         error instanceof Error ? error.message : "Payment failed",
         "error"
       );
-
     }
   }
 
@@ -118,7 +140,6 @@ export default function Product({
       </div>
     );
 
-
   if (error || !product)
     return (
       <div className="alert alert-error max-w-md mx-auto my-8">
@@ -136,13 +157,12 @@ export default function Product({
             className="relative rounded-lg overflow-hidden"
             style={{
               aspectRatio: selectedVariant
-                ? `${IMAGE_VARIANTS[selectedVariant.type].dimensions.width} / ${IMAGE_VARIANTS[selectedVariant.type].dimensions.height
-                }`
+                ? `${IMAGE_VARIANTS[selectedVariant.type].dimensions.width} / ${IMAGE_VARIANTS[selectedVariant.type].dimensions.height}`
                 : "1 / 1",
             }}
           >
             <IKImage
-              urlEndpoint={process.env.NEXT_PUBLIC_URL_ENDPOINT}
+              urlEndpoint={process.env.NEXT_PUBLIC_URL_ENDPOINT || ''}
               path={product.imageUrl}
               alt={product.name}
               transformation={
@@ -179,10 +199,9 @@ export default function Product({
             {product.variants.map((variant) => (
               <div
                 key={variant.type}
-                className={`card bg-base-200 cursor-pointer hover:bg-base-300 transition-colors ${selectedVariant?.type === variant.type
-                    ? "ring-2 ring-primary"
-                    : ""
-                  }`}
+                className={`card bg-base-200 cursor-pointer hover:bg-base-300 transition-colors ${
+                  selectedVariant?.type === variant.type ? "ring-2 ring-primary" : ""
+                }`}
                 onClick={() => setSelectedVariant(variant)}
               >
                 <div className="card-body p-4">
@@ -191,25 +210,13 @@ export default function Product({
                       <ImageIcon className="w-5 h-5" />
                       <div>
                         <h3 className="font-semibold">
-                          {
-                            IMAGE_VARIANTS[
-                              variant.type.toUpperCase() as keyof typeof IMAGE_VARIANTS
-                            ].label
-                          }
+                          {IMAGE_VARIANTS[variant.type.toUpperCase() as keyof typeof IMAGE_VARIANTS].label}
                         </h3>
                         <p className="text-sm text-base-content/70">
-                          {
-                            IMAGE_VARIANTS[
-                              variant.type.toUpperCase() as keyof typeof IMAGE_VARIANTS
-                            ].dimensions.width
-                          }{" "}
+                          {IMAGE_VARIANTS[variant.type.toUpperCase() as keyof typeof IMAGE_VARIANTS].dimensions.width}{" "}
                           x{" "}
-                          {
-                            IMAGE_VARIANTS[
-                              variant.type.toUpperCase() as keyof typeof IMAGE_VARIANTS
-                            ].dimensions.height
-                          }
-                          px • {variant.license} license
+                          {IMAGE_VARIANTS[variant.type.toUpperCase() as keyof typeof IMAGE_VARIANTS].dimensions.height}px
+                          • {variant.license} license
                         </p>
                       </div>
                     </div>

@@ -10,9 +10,15 @@ export interface CreateOrderData {
     variant: ImageVariant
 }
 
+type RequestBody =
+    | ProductFormData
+    | CreateOrderData
+    | { productId: string; variant: ImageVariant }
+    | undefined;
+
 type FetchOptions = {
     method?: "GET" | "POST" | "PUT" | "DELETE";
-    body?: any;
+    body?: RequestBody;
     headers?: Record<string, string>;
 }
 

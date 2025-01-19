@@ -15,6 +15,7 @@ function Header() {
       showNotification('Signed out successfully', 'success');
     } catch (error) {
       showNotification('Failed to sign out', 'error');
+      console.error('Error signing out:', error);
     }
   }
 

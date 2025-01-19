@@ -18,7 +18,7 @@ export default function Providers({ children }: { children: React.ReactNode }) {
             return res.json()
 
         } catch (error) {
-            throw new Error(`Authentication request failed`);
+            console.error("Authentication request failed",error)
         }
     }
 

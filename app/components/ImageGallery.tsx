@@ -1,7 +1,6 @@
 import { IProduct } from '@/models/Product'
 import React from 'react'
 import ProductCard from './ProductCard'
-import { useNotification } from './Notification'
 
 interface ImageGalleryProps {
   products: IProduct[]

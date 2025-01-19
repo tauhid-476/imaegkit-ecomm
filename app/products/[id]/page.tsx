@@ -40,7 +40,7 @@ export default function Product({
 }) {
   const router = useRouter();
   const [product, setProduct] = useState<IProduct | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedVariant, setSelectedVariant] = useState<ImageVariant | null>(null);
   const { showNotification } = useNotification();
@@ -67,7 +67,7 @@ export default function Product({
       }
     }
     fetchProduct();
-  }, [params, showNotification])
+  }, [params])
 
   const handlePurchase = async (variant: ImageVariant) => {
     if (!session?.user?.email) {
@@ -220,7 +220,7 @@ export default function Product({
                         </p>
                       </div>
                     </div>
-                    <div className="flex items-center gap-4">
+                    <div className="md:flex  items-center text-center gap-4">
                       <span className="text-xl font-bold">
                         ${variant.price.toFixed(2)}
                       </span>

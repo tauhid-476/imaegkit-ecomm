@@ -7,6 +7,13 @@ import { Download, Loader2 } from 'lucide-react'
 import { useSession } from 'next-auth/react'
 import React, { useEffect, useState } from 'react'
 
+
+interface PopulatedProduct {
+  _id: string;
+  name: string
+  imageUrl: string;
+}
+
 function Orders() {
     const [orders, setOrders] = useState<IOrder[]>([])
     const [loading, setLoading] = useState(false)
@@ -44,8 +51,8 @@ function Orders() {
                 order.variant.type.toUpperCase() as keyof typeof IMAGE_VARIANTS
               ].dimensions;
   
-            const product = order.productId as any;
-  
+            const product = order.productId as unknown as PopulatedProduct;
+            
             return (
               <div
                 key={order._id?.toString()}

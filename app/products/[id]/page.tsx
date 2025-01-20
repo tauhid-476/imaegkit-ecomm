@@ -86,11 +86,11 @@ export default function Product({
         variant
       });
 
-      const razorpayKeyId = process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID;
-      if (!razorpayKeyId) {
-        showNotification("Razorpay key is missing", "error");
-        return;
-      }
+      const razorpayKeyId = process.env.NEXT_PUBLICRAZORPAY_KEY_ID!;
+      // if (!razorpayKeyId) {
+      //   showNotification("Razorpay key is missing", "error");
+      //   return;
+      // }
 
       const options: RazorpayOptions = {
         key: razorpayKeyId,

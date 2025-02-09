@@ -2,7 +2,7 @@
 import { signOut, useSession } from 'next-auth/react'
 import React, { useState } from 'react'
 import { useNotification } from './Notification'
-import { Home, LogIn, LogOut, Menu, Package, Settings, X } from 'lucide-react'
+import { Camera, LogIn, LogOut, Menu, Package, Settings, X } from 'lucide-react'
 import Link from 'next/link'
 
 function Header() {
@@ -27,8 +27,8 @@ function Header() {
           {/* Left section with logo */}
           <div className="flex items-center">
             <Link href="/" className="flex items-center space-x-2">
-              <Home className="h-6 w-6 text-white" />
-              <span className="text-xl font-bold text-white">ImageKitShop</span>
+              <Camera className="h-6 w-6 text-white" />
+              <span className="text-xl font-bold text-white">Snap Cart</span>
             </Link>
           </div>
 

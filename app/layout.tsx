@@ -7,7 +7,7 @@ import Script from "next/script";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata = {
-  title: "SNap Cart - E-comm",
+  title: "Snap Cart",
   description: "Snap Cart",
 };
 

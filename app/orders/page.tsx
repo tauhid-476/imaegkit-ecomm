@@ -5,7 +5,7 @@ import { IMAGE_VARIANTS } from '@/models/Product'
 import { IKImage } from 'imagekitio-next'
 import { Download, Loader2 } from 'lucide-react'
 import { useSession } from 'next-auth/react'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useRef } from 'react'
 
 
 interface PopulatedProduct {

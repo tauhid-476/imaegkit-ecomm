@@ -18,6 +18,7 @@ function Orders() {
     const [orders, setOrders] = useState<IOrder[]>([])
     const [loading, setLoading] = useState(false)
     const { data: session } = useSession();
+    const imageRef = useRef<HTMLImageElement>(null)
 
     useEffect(() => {
         const fetchOrders = async () => {
@@ -32,6 +33,37 @@ function Orders() {
         }
         if(session) fetchOrders()
     }, [session])
+
+  const handleDownload = () => {
+    //remeber we need the reference of the image we want to download.Thats why we have refHook
+    //the download button should have the reference that which image must be downloaded
+
+    //blob-->binary large object short form
+    if (!imageRef.current) return;
+
+    //fetch method to that image
+    //first convert it into a binary data object
+    //then download the image
+
+    //The createObjectURL() static method of the URL interface creates a string containing a URL representing the object given in the parameter.
+    fetch(imageRef.current.src)
+      .then((response) => response.blob())
+      .then((blob) => {
+        const url = window.URL.createObjectURL(blob)
+        const link = document.createElement("a");
+        console.log("Image url is",url);
+        console.log("Link to download it",link);
+      
+        link.href = url;
+        link.download = `${selectedFormat
+          .replace(/\s+/g, "_")
+          .toLowerCase()}.png`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
+      })
+  }
 
     if (loading) {
         return (
@@ -83,6 +115,7 @@ function Orders() {
                         ]}
                         className="w-full h-full object-cover"
                         loading="lazy"
+                        ref={imageRef}
                       />
                     </div>
   
@@ -126,6 +159,7 @@ function Orders() {
                             ${order.amount.toFixed(2)}
                           </p>
                           {order.status === "completed" && (
+                         <button onClick={handleDownload}>
                             <a
                               href={`${process.env.NEXT_PUBLIC_URL_ENDPOINT}/tr:q-100,w-${variantDimensions.width},h-${variantDimensions.height},cm-extract,fo-center/${product.imageUrl}`}
                               target="_blank"
@@ -138,6 +172,7 @@ function Orders() {
                               <Download className="w-4 h-4" />
                               Download High Quality
                             </a>
+                           </button>
                           )}
                         </div>
                       </div>
